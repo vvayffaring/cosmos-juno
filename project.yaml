@@ -1,0 +1,35 @@
+specVersion: 1.0.0
+name: juno-terra-developer-fund-votes
+version: 0.0.1
+runner:
+  node:
+    name: "@subql/node-cosmos"
+    version: "*"
+  query:
+    name: "@subql/query"
+    version: "*"
+description: >-
+  This project indexes all votes made on the Terra Developer Fund
+repository: https://github.com/jamesbayly/juno-terra-developer-fund-votes
+schema:
+  file: ./schema.graphql
+
+network:
+  chainId: juno-1
+  endpoint: https://rpc.juno-1.api.onfinality.io
+  dictionary: https://api.subquery.network/sq/subquery/cosmos-juno-dictionary
+
+dataSources:
+  - kind: cosmos/Runtime
+    startBlock: 3246370 # The block when the first proposal in this fund was created
+    mapping:
+      file: "./dist/index.js"
+      handlers:
+        - handler: handleTerraDeveloperFund
+          kind: cosmos/MessageHandler
+          filter:
+            type: "/cosmwasm.wasm.v1.MsgExecuteContract"
+            # Filter to only messages with the vote function call
+            contractCall: "vote" # The name of the contract function that was called
+            values: # This is the specific smart contract that we are subscribing to
+              contract: "juno1lgnstas4ruflg0eta394y8epq67s4rzhg5anssz3rc5zwvjmmvcql6qps2"
